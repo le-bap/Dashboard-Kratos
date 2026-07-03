@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Monitoring — Dashboar"</title>
+<style>
+  :root{
+    --bg: #f4f6f9;
+    --sidebar-bg: #0b1220;
+    --sidebar-hover: #16213a;
+    --sidebar-active: #2563eb;
+    --card-bg: #ffffff;
+    --border: #e5e9f0;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --orange: #d97706;
+    --orange-bg: #fef3c7;
+    --blue: #2563eb;
+    --blue-bg: #dbeafe;
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --radius: 12px;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 1px 6px rgba(0,0,0,0.04);
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+  }
+
+  .app{
+    display:grid;
+    grid-template-columns: 240px 1fr;
+    min-height:100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar{
+    background: var(--sidebar-bg);
+    color:#e5e9f0;
+    display:flex;
+    flex-direction:column;
+    padding: 20px 14px;
+    position:sticky;
+    top:0;
+    height:100vh;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 6px 10px 24px 10px;
+  }
+  .brand .logo{
+    width:34px; height:34px;
+    background: linear-gradient(135deg,#2563eb,#1d4ed8);
+    border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+    flex-shrink:0;
+  }
+  .brand .name{
+    font-weight:800;
+    font-size:14px;
+    line-height:1.15;
+    letter-spacing:0.3px;
+  }
+  .nav{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    flex:1;
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:8px;
+    color:#c7cede;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    background:transparent;
+    border:none;
+    text-align:left;
+    width:100%;
+  }
+  .nav-item:hover{ background: var(--sidebar-hover); color:#fff; }
+  .nav-item.active{ background: var(--sidebar-active); color:#fff; }
+  .nav-item .icon{ font-size:16px; width:18px; text-align:center; }
+
+  .sidebar-footer{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    border-top:1px solid rgba(255,255,255,0.08);
+    padding-top:10px;
+  }
+
+  /* MAIN */
+  .main{
+    padding: 26px 32px 50px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom: 22px;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .topbar h1{
+    font-size: 28px;
+    margin:0;
+    font-weight:800;
+  }
+  .topbar-right{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    font-size:14px;
+    color: var(--text-secondary);
+  }
+  .refresh-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    color: var(--blue);
+    font-weight:600;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-size:14px;
+    padding:4px;
+  }
+  .refresh-btn:hover{ text-decoration: underline; }
+  .refresh-btn.spinning .spin-icon{
+    display:inline-block;
+    animation: spin 0.7s linear;
+  }
+  @keyframes spin{ from{ transform: rotate(0deg);} to{ transform: rotate(360deg);} }
+
+  /* Status banner */
+  .status-banner{
+    background: var(--card-bg);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 24px;
+    display:flex;
+    align-items:center;
+    gap: 34px;
+    margin-bottom: 20px;
+    flex-wrap:wrap;
+  }
+  .status-ok{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .status-ok .badge{
+    width:36px;height:36px;
+    background: var(--green-bg);
+    color: var(--green);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+    flex-shrink:0;
+  }
+  .status-ok .title{ font-weight:700; color: var(--green); font-size:15px; }
+  .status-ok .subtitle{ font-size:13px; color: var(--text-secondary); }
+  .status-meta{
+    display:flex;
+    gap:40px;
+    flex-wrap:wrap;
+  }
+  .status-meta div{ font-size:13px; }
+  .status-meta .label{ color: var(--text-secondary); margin-bottom:4px; }
+  .status-meta .value{ font-weight:700; font-size:14px; }
+
+  /* KPI cards */
+  .kpi-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:18px;
+    margin-bottom: 22px;
+  }
+  .kpi-card{
+    background: var(--card-bg);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 22px;
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+  }
+  .kpi-icon{
+    width:52px;height:52px;
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+    flex-shrink:0;
+  }
+  .kpi-icon.red{ background: var(--red-bg); color: var(--red); }
+  .kpi-icon.orange{ background: var(--orange-bg); color: var(--orange); }
+  .kpi-icon.blue{ background: var(--blue-bg); color: var(--blue); }
+  .kpi-body .kpi-title{ font-weight:700; font-size:14.5px; margin-bottom:6px; }
+  .kpi-body .kpi-number{ font-size:26px; font-weight:800; }
+  .kpi-body .kpi-number span{ font-size:14px; font-weight:600; color: var(--text-secondary); margin-left:4px; }
+  .kpi-body .kpi-caption{ font-size:12.5px; color: var(--text-secondary); margin-top:4px; }
+  .kpi-card.red .kpi-number{ color: var(--red); }
+  .kpi-card.red .kpi-caption{ color: var(--red); }
+  .kpi-card.orange .kpi-number{ color: var(--orange); }
+
+  /* Filters */
+  .filters{
+    display:flex;
+    align-items:flex-end;
+    gap:24px;
+    margin-bottom: 18px;
+    flex-wrap:wrap;
+  }
+  .filter-field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .filter-field label{ font-size:13px; font-weight:600; color: var(--text-primary); }
+  .filter-field select{
+    padding:9px 14px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#fff;
+    font-size:14px;
+    min-width:220px;
+    color: var(--text-primary);
+    cursor:pointer;
+  }
+  .clear-filters{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 16px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#fff;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    color: var(--text-primary);
+    height:38px;
+  }
+  .clear-filters:hover{ background:#f3f4f6; }
+
+  /* Panels */
+  .panels{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:18px;
+    margin-bottom: 20px;
+    align-items:start;
+  }
+  .panel{
+    background: var(--card-bg);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .panel-header{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 16px 20px;
+    font-weight:700;
+    font-size:15px;
+    border-bottom:1px solid var(--border);
+  }
+  .panel-header.red{ color: var(--red); }
+  .panel-header.blue{ color: var(--blue); }
+  .panel-header.orange{ color: var(--orange); }
+
+  .panel table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  .panel thead th{
+    text-align:left;
+    color: var(--text-secondary);
+    font-weight:600;
+    font-size:12.5px;
+    padding: 10px 20px 8px;
+  }
+  .panel tbody td{
+    padding: 10px 20px;
+    border-top:1px solid var(--border);
+    color: var(--text-primary);
+  }
+  .panel tbody tr:hover{ background:#f9fafb; }
+
+  .pill{
+    display:inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size:12px;
+    font-weight:700;
+  }
+  .pill.yes{ background: var(--green-bg); color: var(--green); }
+  .pill.no{ background: var(--red-bg); color: var(--red); }
+  .pill.fail{ background: var(--red-bg); color: var(--red); }
+
+  .battery-val.crit{ color: var(--red); font-weight:700; }
+
+  .panel-footer{
+    padding: 14px 20px;
+    text-align:center;
+    border-top:1px solid var(--border);
+    margin-top:auto;
+  }
+  .panel-footer a{
+    color: inherit;
+    font-weight:700;
+    font-size:13.5px;
+    text-decoration:none;
+    cursor:pointer;
+  }
+  .panel-footer.red a{ color: var(--red); }
+  .panel-footer.blue a{ color: var(--blue); }
+  .panel-footer.orange a{ color: var(--orange); }
+  .panel-footer a:hover{ text-decoration:underline; }
+
+  .empty-row td{
+    text-align:center;
+    color: var(--text-secondary);
+    padding: 20px;
+    font-style: italic;
+  }
+
+  /* Info box */
+  .info-box{
+    background: var(--card-bg);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 24px;
+    display:flex;
+    gap:14px;
+  }
+  .info-box .i-badge{
+    width:26px;height:26px;
+    border-radius:50%;
+    background: var(--blue);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;
+    font-weight:700;
+    flex-shrink:0;
+  }
+  .info-box h3{ margin:2px 0 8px; font-size:15px; }
+  .info-box ul{ margin:0; padding-left:18px; color: var(--text-secondary); font-size:13.5px; line-height:1.9; }
+  .info-box strong{ color: var(--text-primary); }
+
+  @media (max-width: 1100px){
+    .kpi-grid, .panels{ grid-template-columns: 1fr; }
+  }
+  @media (max-width: 800px){
+    .app{ grid-template-columns: 1fr; }
+    .sidebar{ position:relative; height:auto; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">🤖</div>
+      <div class="name">ROBOT<br>MONITORING</div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-page="Dashboard"><span class="icon">🏠</span>Dashboard</button>
+      <button class="nav-item" data-page="Robôs"><span class="icon">🔗</span>Robôs</button>
+      <button class="nav-item" data-page="Lojas"><span class="icon">🏬</span>Lojas</button>
+      <button class="nav-item" data-page="Tarefas"><span class="icon">📋</span>Tarefas</button>
+      <button class="nav-item" data-page="Relatórios"><span class="icon">📊</span>Relatórios</button>
+      <button class="nav-item" data-page="Configurações"><span class="icon">⚙️</span>Configurações</button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="nav-item" data-page="Ajuda"><span class="icon">❓</span>Ajuda</button>
+      <button class="nav-item" data-page="Sair"><span class="icon">🚪</span>Sair</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <h1>Dashboard</h1>
+      <div class="topbar-right">
+        <span id="nowLabel">📅 02/07/2026 09:30</span>
+        <button class="refresh-btn" id="refreshBtn"><span class="spin-icon">🔄</span> Atualizar</button>
+      </div>
+    </div>
+
+    <!-- Status banner -->
+    <div class="status-banner">
+      <div class="status-ok">
+        <div class="badge">✓</div>
+        <div>
+          <div class="title">Coletor funcionando</div>
+          <div class="subtitle">Dados atualizados com sucesso</div>
+        </div>
+      </div>
+      <div class="status-meta">
+        <div>
+          <div class="label">Última atualização</div>
+          <div class="value" id="lastUpdate">02/07/2026 09:30</div>
+        </div>
+        <div>
+          <div class="label">Próxima atualização</div>
+          <div class="value" id="nextUpdate">02/07/2026 10:00</div>
+        </div>
+        <div>
+          <div class="label">Frequência</div>
+          <div class="value">A cada 30 minutos</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card red">
+        <div class="kpi-icon red">🔋</div>
+        <div class="kpi-body">
+          <div class="kpi-title">Bateria abaixo de 10%</div>
+          <div class="kpi-number" id="kpiBattery">3<span>robôs</span></div>
+          <div class="kpi-caption">Precisam de atenção</div>
+        </div>
+      </div>
+      <div class="kpi-card orange">
+        <div class="kpi-icon orange">⚠️</div>
+        <div class="kpi-body">
+          <div class="kpi-title">Robôs com alta taxa de falha</div>
+          <div class="kpi-number" id="kpiFail">2<span>robôs</span></div>
+          <div class="kpi-caption">Taxa de falha &gt; 40%</div>
+        </div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-icon blue">😴</div>
+        <div class="kpi-body">
+          <div class="kpi-title">Robôs inativos há mais de 4 dias</div>
+          <div class="kpi-number" id="kpiInactive">5<span>robôs</span></div>
+          <div class="kpi-caption">Sem tarefas no período</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filter-field">
+        <label for="storeFilter">Loja</label>
+        <select id="storeFilter">
+          <option value="Todas">Todas</option>
+          <option value="Loja A">Loja A</option>
+          <option value="Loja B">Loja B</option>
+          <option value="Loja C">Loja C</option>
+          <option value="Loja D">Loja D</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="clientFilter">Cliente</label>
+        <select id="clientFilter">
+          <option value="Todos">Todos</option>
+          <option value="Cliente 1">Cliente 1</option>
+          <option value="Cliente 2">Cliente 2</option>
+          <option value="Cliente 3">Cliente 3</option>
+        </select>
+      </div>
+      <button class="clear-filters" id="clearFilters">▽ Limpar filtros</button>
+    </div>
+
+    <!-- Panels -->
+    <div class="panels">
+
+      <!-- Battery panel -->
+      <section class="panel">
+        <div class="panel-header red">🔋 Robôs com bateria abaixo de 10%</div>
+        <table>
+          <thead>
+            <tr><th>Robô</th><th>Loja</th><th>Cena</th><th>Bateria</th><th>Carregando?</th><th>Últ. atualização</th></tr>
+          </thead>
+          <tbody id="batteryBody"></tbody>
+        </table>
+        <div class="panel-footer red"><a id="batteryFooter" href="javascript:void(0)">Ver todos (3)</a></div>
+      </section>
+
+      <!-- Inactive panel -->
+      <section class="panel">
+        <div class="panel-header blue">😴 Robôs sem tarefas há mais de 4 dias</div>
+        <table>
+          <thead>
+            <tr><th>Robô</th><th>Loja</th><th>Última tarefa</th><th>Dias parado</th></tr>
+          </thead>
+          <tbody id="inactiveBody"></tbody>
+        </table>
+        <div class="panel-footer blue"><a id="inactiveFooter" href="javascript:void(0)">Ver todos (5)</a></div>
+      </section>
+
+      <!-- Failure panel -->
+      <section class="panel">
+        <div class="panel-header orange">✕ Robôs com alta taxa de falha</div>
+        <table>
+          <thead>
+            <tr><th>Robô</th><th>Loja</th><th>Entregas</th><th>Falhas</th><th>Taxa de falha</th></tr>
+          </thead>
+          <tbody id="failureBody"></tbody>
+        </table>
+        <div class="panel-footer orange"><a id="failureFooter" href="javascript:void(0)">Ver todos (2)</a></div>
+      </section>
+
+    </div>
+
+    <!-- Info box -->
+    <div class="info-box">
+      <div class="i-badge">i</div>
+      <div>
+        <h3>Sobre os indicadores</h3>
+        <ul>
+          <li><strong>Bateria abaixo de 10%:</strong> Robôs com nível de bateria menor que 10%.</li>
+          <li><strong>Robôs inativos:</strong> Sem tarefas realizadas nos últimos 4 dias.</li>
+          <li><strong>Alta taxa de falha:</strong> Taxa de falha maior que 40% no dia anterior.</li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ---------- Mock data (substitua por dados vindos de uma API real) ----------
+  const batteryData = [
+    { robot:'T8-01', store:'Loja A', client:'Cliente 1', scene:'Hall',   battery:8, charging:true,  updated:'09:28' },
+    { robot:'T9-02', store:'Loja C', client:'Cliente 2', scene:'Piso 2', battery:5, charging:false, updated:'09:27' },
+    { robot:'T8-15', store:'Loja B', client:'Cliente 3', scene:'Piso 1', battery:9, charging:true,  updated:'09:29' },
+  ];
+
+  const inactiveData = [
+    { robot:'T8-10', store:'Loja B', client:'Cliente 3', lastTask:'28/06/2026 08:15', daysStopped:5 },
+    { robot:'T9-05', store:'Loja A', client:'Cliente 1', lastTask:'29/06/2026 14:22', daysStopped:4 },
+    { robot:'T8-11', store:'Loja C', client:'Cliente 2', lastTask:'28/06/2026 09:10', daysStopped:5 },
+    { robot:'T9-08', store:'Loja D', client:'Cliente 1', lastTask:'27/06/2026 18:30', daysStopped:6 },
+    { robot:'T8-17', store:'Loja A', client:'Cliente 1', lastTask:'28/06/2026 11:05', daysStopped:5 },
+  ];
+
+  const failureData = [
+    { robot:'T8-08', store:'Loja A', client:'Cliente 1', deliveries:20, failures:9, rate:45 },
+    { robot:'T9-03', store:'Loja C', client:'Cliente 2', deliveries:15, failures:7, rate:46 },
+  ];
+
+  // ---------- Render helpers ----------
+  function renderBattery(data){
+    const body = document.getElementById('batteryBody');
+    body.innerHTML = '';
+    if(data.length === 0){
+      body.innerHTML = '<tr class="empty-row"><td colspan="6">Nenhum robô encontrado para os filtros selecionados.</td></tr>';
+    } else {
+      data.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.robot}</td>
+          <td>${r.store}</td>
+          <td>${r.scene}</td>
+          <td class="battery-val crit">${r.battery}%</td>
+          <td><span class="pill ${r.charging ? 'yes' : 'no'}">${r.charging ? 'Sim' : 'Não'}</span></td>
+          <td>${r.updated}</td>`;
+        body.appendChild(tr);
+      });
+    }
+    document.getElementById('batteryFooter').textContent = `Ver todos (${data.length})`;
+    document.getElementById('kpiBattery').innerHTML = `${data.length}<span>robôs</span>`;
+  }
+
+  function renderInactive(data){
+    const body = document.getElementById('inactiveBody');
+    body.innerHTML = '';
+    if(data.length === 0){
+      body.innerHTML = '<tr class="empty-row"><td colspan="4">Nenhum robô encontrado para os filtros selecionados.</td></tr>';
+    } else {
+      data.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.robot}</td>
+          <td>${r.store}</td>
+          <td>${r.lastTask}</td>
+          <td>${r.daysStopped}</td>`;
+        body.appendChild(tr);
+      });
+    }
+    document.getElementById('inactiveFooter').textContent = `Ver todos (${data.length})`;
+    document.getElementById('kpiInactive').innerHTML = `${data.length}<span>robôs</span>`;
+  }
+
+  function renderFailure(data){
+    const body = document.getElementById('failureBody');
+    body.innerHTML = '';
+    if(data.length === 0){
+      body.innerHTML = '<tr class="empty-row"><td colspan="5">Nenhum robô encontrado para os filtros selecionados.</td></tr>';
+    } else {
+      data.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.robot}</td>
+          <td>${r.store}</td>
+          <td>${r.deliveries}</td>
+          <td>${r.failures}</td>
+          <td><span class="pill fail">${r.rate}%</span></td>`;
+        body.appendChild(tr);
+      });
+    }
+    document.getElementById('failureFooter').textContent = `Ver todos (${data.length})`;
+    document.getElementById('kpiFail').innerHTML = `${data.length}<span>robôs</span>`;
+  }
+
+  function applyFilters(){
+    const store = document.getElementById('storeFilter').value;
+    const client = document.getElementById('clientFilter').value;
+
+    const filterFn = (r) =>
+      (store === 'Todas' || r.store === store) &&
+      (client === 'Todos' || r.client === client);
+
+    renderBattery(batteryData.filter(filterFn));
+    renderInactive(inactiveData.filter(filterFn));
+    renderFailure(failureData.filter(filterFn));
+  }
+
+  document.getElementById('storeFilter').addEventListener('change', applyFilters);
+  document.getElementById('clientFilter').addEventListener('change', applyFilters);
+
+  document.getElementById('clearFilters').addEventListener('click', () => {
+    document.getElementById('storeFilter').value = 'Todas';
+    document.getElementById('clientFilter').value = 'Todos';
+    applyFilters();
+  });
+
+  // Refresh button: simulate a data refresh with updated timestamps
+  document.getElementById('refreshBtn').addEventListener('click', function(){
+    this.classList.add('spinning');
+    setTimeout(() => {
+      const now = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      const fmt = d => `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      const next = new Date(now.getTime() + 30*60000);
+      document.getElementById('lastUpdate').textContent = fmt(now);
+      document.getElementById('nextUpdate').textContent = fmt(next);
+      document.getElementById('nowLabel').textContent = `📅 ${fmt(now)}`;
+      this.classList.remove('spinning');
+    }, 700);
+  });
+
+  // Sidebar navigation (visual only — swap the active state)
+  document.getElementById('nav').addEventListener('click', (e) => {
+    const btn = e.target.closest('.nav-item');
+    if(!btn) return;
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+
+  // Initial render
+  applyFilters();
+</script>
+</body>
+</html>

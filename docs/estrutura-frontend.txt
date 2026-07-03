@@ -1,0 +1,49 @@
+Dashboard
+    │
+
+    ├── Header
+
+    ├── CollectorStatus
+
+    ├── SummaryCard
+
+    ├── SummaryCard
+
+    ├── SummaryCard
+
+    ├── FilterBar
+
+    ├── RobotTable
+
+    ├── RobotTable
+
+    └── RobotTable
+
+| Componente      | Responsabilidade                            |
+| --------------- | ------------------------------------------- |
+| Header          | Nome da aplicação                           |
+| CollectorStatus | Última atualização e status do coletor      |
+| SummaryCard     | Exibir um indicador (bateria, falhas, etc.) |
+| FilterBar       | Filtros da tela                             |
+| RobotTable      | Exibir qualquer lista de robôs              |
+| Dashboard       | Organizar todos os componentes              |
+
+CollectorStatus
+| Prop        | Tipo   |
+| ----------- | ------ |
+| status      | String |
+| lastUpdate  | String |
+| lastAttempt | String |
+
+SummaryCard
+| Prop  | Tipo   |
+| ----- | ------ |
+| title | String |
+| value | Number |
+| icon  | String |
+
+RobotTable
+| Prop   | Tipo   |
+| ------ | ------ |
+| title  | String |
+| robots | Array  |
