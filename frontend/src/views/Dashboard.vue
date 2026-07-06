@@ -5,6 +5,7 @@ import CollectorStatus from "../components/cards/CollectorStatus.vue"
 import FilterBar from "../components/filters/FilterBar.vue"
 import RobotTable from "../components/tables/RobotTable.vue";
 import AboutIndicators from "../components/layout/AboutIndicators.vue";
+import GeneralQuantity from "../components/cards/GeneralQuantity.vue";
 
 const columns_battery = [
   { label: "Robô", key: "robot" },
@@ -66,6 +67,18 @@ function abrirListaCompleta(){
       lastAttempt="01/07/2026 10:00"
       lastUpdate="01/07/2026 10:00"
     />
+    <div class="cards">
+      <GeneralQuantity 
+        title="Total de robôs"
+        :value="64"
+      />
+
+      <GeneralQuantity 
+        title="Total de lojas criadas"
+        :value="89"
+      />
+    </div>
+    <br>
     <div class="cards">
         <SummaryCard
             title="Pouca bateria"

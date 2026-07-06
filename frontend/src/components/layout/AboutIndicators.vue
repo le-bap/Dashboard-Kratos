@@ -23,6 +23,7 @@
     align-items:center;
     gap:18px;
     box-shadow:0px 4px 10px rgba(0,0,0,.08);
+    margin-bottom: 30px;
 }
 
 .content h3{

@@ -28,7 +28,7 @@ defineProps({
 
     <div class="content">
         <p id="nowLabel">📅 06/07/2026 14:22</p>
-        <button class="refresh-btn" id="refreshBtn"><span class="spin-icon">🔄</span> Atualizar</button>
+        <button ><span class="spin-icon">🔄</span> Atualizar</button>
       </div>
 
 </div>
@@ -39,26 +39,28 @@ defineProps({
 
 .card{
     padding:15px;
+    max-width: 900px;
     display:flex;
     align-items:center;
     gap:20px;
     background-color: #1E3A5F;
+    margin-bottom: 15px;
 }
 
 .icon{
-    font-size:20px;
+    font-size:18px;
     color: white;
 }
 
 .content h3{
     margin:0;
-    font-size: 15px;
+    font-size: 14px;
     color:white;
 }
 
 .content p{
     margin:4px 0 0;
-    font-size:20px;
+    font-size:18px;
     font-weight:bold;
     color: white;
 }
