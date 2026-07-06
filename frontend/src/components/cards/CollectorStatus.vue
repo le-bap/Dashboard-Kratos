@@ -26,6 +26,11 @@ defineProps({
         <h3>{{ lastUpdate}}</h3>
     </div>
 
+    <div class="content">
+        <p id="nowLabel">📅 06/07/2026 14:22</p>
+        <button class="refresh-btn" id="refreshBtn"><span class="spin-icon">🔄</span> Atualizar</button>
+      </div>
+
 </div>
 
 </template>

@@ -1,0 +1,130 @@
+<script setup>
+defineProps({
+  title: String,
+  columns: Array,
+  rows: Array,
+  buttonText: {
+    type: String,
+    default: "Ver todos"
+  },
+  fontColor: String
+})
+
+const emit = defineEmits(["view-all"])
+</script>
+
+<template>
+  <div class="table-card" :style="{ '--title-color': fontColor }" >
+
+    <div class="header">
+      <h2>{{ title }}</h2>
+    </div>
+
+    <table>
+
+      <thead>
+        <tr>
+          <th
+            v-for="column in columns"
+            :key="column.key"
+          >
+            {{ column.label }}
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr
+          v-for="(row,index) in rows"
+          :key="index"
+        >
+          <td
+            v-for="column in columns"
+            :key="column.key"
+          >
+            {{ row[column.key] }}
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+    <div
+      class="footer"
+      @click="$emit('view-all')"
+    >
+      {{ buttonText }} ({{ rows.length }})
+    </div>
+
+  </div>
+</template>
+
+<style scoped>
+.table-card {
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,.12);
+    margin: 20px auto;
+}
+
+.header {
+    padding: 10px 10px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--title-color);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: white;
+}
+
+th {
+    padding: 12px 10px;
+    text-align: left;
+    font-size: 18px;
+    font-weight: 700;
+    color: #5d6673;
+    border-bottom: 1px solid #ececec;
+    text-align: center;
+}
+
+td {
+    padding: 10px 8px;
+    font-size: 16px;
+    color: #263238;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+tbody tr:hover {
+    background: #fafafa;
+}
+
+.footer {
+    padding: 10px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--title-color);
+    cursor: pointer;
+    transition: .2s;
+}
+
+.footer:hover {
+    background: #fafafa;
+}
+</style>

@@ -34,7 +34,7 @@
 
 h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 35px;
   color: white;
 }
 </style>
