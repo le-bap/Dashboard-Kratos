@@ -8,10 +8,23 @@ import AboutIndicators from "../components/layout/AboutIndicators.vue";
 import GeneralQuantity from "../components/cards/GeneralQuantity.vue";
 import { getDashboardData } from "../services/robotService"
 import { useRouter } from "vue-router"
+import { ref, computed } from "vue"
+
+const filters = ref({
+  store: null,
+  robot: null
+})
+
+const dashboard = computed(() =>
+  getDashboardData(filters.value)
+)
 
 const router = useRouter()
 
-const dashboard = getDashboardData()
+function updateFilters(newFilters) {
+  console.log(newFilters)
+  filters.value = newFilters
+}
 
 function abrirListaCompleta(tableId){
   router.push(`/table/${tableId}`)
@@ -63,7 +76,11 @@ function abrirListaCompleta(tableId){
             icon="🌐"
         />
     </div>
-    <FilterBar/>
+    <FilterBar
+      :robotList="dashboard.filterBar.robotList"
+      :storeList="dashboard.filterBar.storeList"
+      @filter-change="updateFilters"
+    />
 
     <div class="tables">
       <RobotTable

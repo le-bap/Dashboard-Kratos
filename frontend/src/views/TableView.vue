@@ -18,6 +18,7 @@ const table = getTable(route.params.type)
         :columns="table.columns"
         :rows="table.rows"
         :showFooter="false"
+        fontColor="red"
     />
 
 </div>

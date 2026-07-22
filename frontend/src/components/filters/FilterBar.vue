@@ -1,56 +1,61 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue"
 
-const loja = ref("Todas");
-const cliente = ref("Todos");
+import Multiselect from "vue-multiselect"
+import "vue-multiselect/dist/vue-multiselect.css"
 
-const lojas = [
-  "Todas",
-  "Loja A",
-  "Loja B",
-  "Loja C"
-];
+const store = ref(null)
+const robot = ref(null)
 
-const clientes = [
-  "Todos",
-  "Cliente 1",
-  "Cliente 2",
-  "Cliente 3"
-];
+const props = defineProps({
+  robotList:Array,
+  storeList:Array
+})
 
 function limparFiltros() {
-  loja.value = "Todas";
-  cliente.value = "Todos";
+  store.value = null
+  robot.value = null
 }
+
+// emitir um evento que um filtro foi mudado
+const emit = defineEmits(["filter-change"])
+watch([store, robot], () => {
+  emit("filter-change", {
+    store: store.value?.storeName ?? null,
+    robot: robot.value?.robotid ?? null
+  })
+})
 </script>
 
 <template>
   <div class="filters">
 
     <div class="filter-group">
-      <label>Loja</label>
-      <select v-model="loja">
-        <option
-          v-for="item in lojas"
-          :key="item"
-          :value="item"
-        >
-          {{ item }}
-        </option>
-      </select>
+      <label>Lojas</label>
+      <Multiselect
+        v-model="robot"
+        :options="robotList"
+        label="robotid"
+        track-by="robotid"
+        :searchable="true"
+        :allow-empty="true"
+        :show-labels="false"
+        placeholder="Pesquisar robô"
+      />
     </div>
 
     <div class="filter-group">
-      <label>Cliente</label>
-      <select v-model="cliente">
-        <option
-          v-for="item in clientes"
-          :key="item"
-          :value="item"
-        >
-          {{ item }}
-        </option>
-      </select>
+      <label>Robôs</label>
+      <Multiselect
+        v-model="store"
+        :options="storeList"
+        label="storeName"
+        track-by="storeName"
+        :searchable="true"
+        :allow-empty="true"
+        :show-labels="false"
+        placeholder="Pesquisar loja"
+      />
     </div>
 
     <button @click="limparFiltros">
@@ -72,6 +77,7 @@ function limparFiltros() {
 .filter-group {
   display: flex;
   flex-direction: column;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 label {
@@ -104,5 +110,30 @@ button {
 
 button:hover {
   background: #f5f5f5;
+}
+
+.multiselect {
+  color: black;
+  width: 320px;
+}
+
+:deep(.multiselect__tags) {
+    min-height: 42px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    color: black;
+}
+
+:deep(.multiselect__content-wrapper) {
+    border-radius: 12px;
+}
+
+:deep(.multiselect__option--highlight) {
+    background: #69ACEE;
+}
+
+:deep(.multiselect__placeholder) {
+    color: #999;
 }
 </style>
