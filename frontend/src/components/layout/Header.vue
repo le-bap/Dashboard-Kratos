@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #1E3A5F;
+  background-color: #215DD1;
   padding: 20px 32px;
   position: relative;
 }
@@ -34,7 +34,7 @@
 
 h1 {
   margin: 0;
-  font-size: 35px;
+  font-size: 30px;
   color: white;
 }
 </style>

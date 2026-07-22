@@ -31,6 +31,11 @@ defineProps({
     gap:18px;
 }
 
+.content{
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .content h3{
     margin:0;
     color: white

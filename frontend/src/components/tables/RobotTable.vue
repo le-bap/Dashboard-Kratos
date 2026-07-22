@@ -1,16 +1,54 @@
 <script setup>
-defineProps({
+import { computed } from "vue"
+
+const props = defineProps({
   title: String,
   columns: Array,
   rows: Array,
+  tableId: {
+    type: String,
+    required: true
+  },
   buttonText: {
     type: String,
     default: "Ver todos"
   },
-  fontColor: String
+  fontColor: String,
+  maxRows: {
+    type: Number,
+    default: null
+  },
+  showFooter: {
+    type: Boolean,
+    default: true
+  },
+  totalRows: {
+    type: Number,
+    default: null
+  }
 })
 
 const emit = defineEmits(["view-all"])
+
+const displayedRows = computed(() => {
+  if (props.maxRows === null) {
+    return props.rows
+  }
+
+  return props.rows.slice(0, props.maxRows)
+})
+
+const showViewAll = computed(() => {
+  if (!props.showFooter) {
+    return false
+  }
+
+  if (props.totalRows === null) {
+    return false
+  }
+
+  return props.totalRows > props.rows.length
+})
 </script>
 
 <template>
@@ -36,7 +74,7 @@ const emit = defineEmits(["view-all"])
       <tbody>
 
         <tr
-          v-for="(row,index) in rows"
+          v-for="(row,index) in displayedRows"
           :key="index"
         >
           <td
@@ -52,11 +90,12 @@ const emit = defineEmits(["view-all"])
     </table>
 
     <div
+      v-if="showViewAll"
       class="footer"
-      @click="$emit('view-all')"
+      @click="$emit('view-all', tableId)"
     >
-      {{ buttonText }} ({{ rows.length }})
-    </div>
+      {{ buttonText }} ({{ totalRows }})
+</div>
 
   </div>
 </template>
@@ -70,6 +109,7 @@ const emit = defineEmits(["view-all"])
     overflow: hidden;
     box-shadow: 0 6px 20px rgba(0,0,0,.12);
     margin: 20px auto;
+    text-align: center;
 }
 
 .header {
