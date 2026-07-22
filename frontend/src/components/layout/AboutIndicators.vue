@@ -18,11 +18,10 @@
 .card{
     background:white;
     border-radius:12px;
-    padding:20px;
+    padding:10px;
     display:flex;
     align-items:center;
     gap:18px;
-    box-shadow:0px 4px 10px rgba(0,0,0,.08);
     margin-bottom: 30px;
 }
 

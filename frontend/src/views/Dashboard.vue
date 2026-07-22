@@ -6,7 +6,8 @@ import FilterBar from "../components/filters/FilterBar.vue";
 import RobotTable from "../components/tables/RobotTable.vue";
 import AboutIndicators from "../components/layout/AboutIndicators.vue";
 import GeneralQuantity from "../components/cards/GeneralQuantity.vue";
-import { getDashboardData } from "../services/robotService"
+import { getDashboardData, getReportData } from "../services/robotService"
+import { exportDashboardReport } from "../services/reportService"
 import { useRouter } from "vue-router"
 import { ref, computed } from "vue"
 
@@ -30,6 +31,13 @@ function abrirListaCompleta(tableId){
   router.push(`/table/${tableId}`)
 }
 
+function exportReport() {
+  const report = getReportData(filters.value)
+  exportDashboardReport(
+    report,
+    filters.value
+  )
+}
 </script>
 
 <template>
@@ -76,12 +84,14 @@ function abrirListaCompleta(tableId){
             icon="🌐"
         />
     </div>
-    <FilterBar
-      :robotList="dashboard.filterBar.robotList"
-      :storeList="dashboard.filterBar.storeList"
-      @filter-change="updateFilters"
-    />
-
+    <div class="filter-and-report">
+      <FilterBar
+        :robotList="dashboard.filterBar.robotList"
+        :storeList="dashboard.filterBar.storeList"
+        @filter-change="updateFilters"
+      />
+      <button @click="exportReport">Exportar<br>pesquisa</button>
+    </div>
     <div class="tables">
       <RobotTable
         title="Robôs com bateria abaixo de 10%"
@@ -146,6 +156,26 @@ main {
   gap: 20px;
   justify-content: center; /* garante centralização dos cards */
   flex-wrap: wrap; /* opcional: quebra em telas menores */
+}
+
+.filter-and-report {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 36px;
+  padding: 20px;
+}
+
+button {
+  margin-left: auto;
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .tables {

@@ -49,13 +49,13 @@ const tables = {
       },
       {
         robot: "C4:3C:B0:AA:F7:AB",
-        store: "KRATOS",
+        store: "INSIGN",
         battery: "8%",
         is_charging: "Não",
       },
       {
         robot: "C4:3C:B0:AA:F7:AB",
-        store: "KRATOS",
+        store: "Padaria do Futuro",
         battery: "8%",
         is_charging: "Sim",
       },
@@ -73,7 +73,7 @@ const tables = {
       },
       {
         robot: "C4:3C:B0:AA:F7:AA",
-        store: "KRATOS",
+        store: "INSIGN",
         battery: "8%",
         is_charging: "Não",
       }
@@ -198,6 +198,46 @@ export function getPreview(type, limit = 5) {
     ...table,
     rows: table.rows.slice(0, limit),
     totalRows: table.rows.length
+  }
+}
+
+export function getReportData(filters = {}) {
+  const batteryRows = filterRows(
+    tables.battery.rows,
+    filters
+  )
+  const inactiveRows = filterRows(
+    tables.inactive.rows,
+    filters
+  )
+  const failedRows = filterRows(
+    tables.failed.rows,
+    filters
+  )
+  const offlineRows = filterRows(
+    tables.offline.rows,
+    filters
+  )
+
+  return {
+    tables: {
+      battery:{
+        ...tables.battery,
+        rows: batteryRows
+      },
+      inactive:{
+        ...tables.inactive,
+        rows: inactiveRows
+      },
+      failed:{
+        ...tables.failed,
+        rows: failedRows
+      },
+      offline:{
+        ...tables.offline,
+        rows: offlineRows
+      }
+    }
   }
 }
 
