@@ -6,6 +6,12 @@ defineProps({
     lastAttempt:String
 })
 
+const emit = defineEmits([
+    "refresh"
+])
+function refresh(){
+    emit("refresh")
+}
 </script>
 
 <template>
@@ -26,10 +32,12 @@ defineProps({
         <h3>{{ lastUpdate}}</h3>
     </div>
 
-    <div class="content">
-        <p id="nowLabel">📅 06/07/2026 14:22</p>
-        <button ><span class="spin-icon">🔄</span> Atualizar</button>
-      </div>
+    <button @click="refresh">
+        <span class="spin-icon">
+            🔄
+        </span>
+        Atualizar
+    </button>
 
 </div>
 

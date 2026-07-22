@@ -8,6 +8,7 @@ import AboutIndicators from "../components/layout/AboutIndicators.vue";
 import GeneralQuantity from "../components/cards/GeneralQuantity.vue";
 import { getDashboardData, getReportData } from "../services/robotService"
 import { exportDashboardReport } from "../services/reportService"
+import { getCollectorStatus, updateCollector } from "../services/collectorService"
 import { useRouter } from "vue-router"
 import { ref, computed } from "vue"
 
@@ -16,11 +17,19 @@ const filters = ref({
   robot: null
 })
 
+const collector = ref(
+    getCollectorStatus()
+)
+
 const dashboard = computed(() =>
   getDashboardData(filters.value)
 )
 
 const router = useRouter()
+
+function refreshCollector(){
+    collector.value = updateCollector()
+}
 
 function updateFilters(newFilters) {
   console.log(newFilters)
@@ -45,9 +54,10 @@ function exportReport() {
   <Header/>
   <main>
     <CollectorStatus
-      status="Dados atualizado com sucesso:"
-      lastAttempt="01/07/2026 10:00"
-      lastUpdate="01/07/2026 10:00"
+      :status="collector.status"
+      :lastAttempt="collector.lastAttempt"
+      :lastUpdate="collector.lastUpdate"
+      @refresh="refreshCollector"
     />
     <div class="cards">
       <GeneralQuantity 
