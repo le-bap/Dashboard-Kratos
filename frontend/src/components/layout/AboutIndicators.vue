@@ -5,8 +5,8 @@
         <h3>Sobre os indicadores</h3>
         <ul>
           <li><strong>Bateria abaixo de 10%:</strong> Robôs com nível de bateria menor que 10%.</li>
-          <li><strong>Robôs inativos:</strong> Sem tarefas realizadas nos últimos 4 dias.</li>
-          <li><strong>Alta taxa de falha:</strong> Taxa de falha maior que 40% no dia anterior.</li>
+          <li><strong>Robôs inativos:</strong> Sem tarefas realizadas nas últimas 24 horas.</li>
+          <li><strong>Alta taxa de falha:</strong> Taxa de falha maior que 40% nas tarefas realizadas nas últimas 24 horas.</li>
         </ul>  
 
 </div>

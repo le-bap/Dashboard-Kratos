@@ -1,0 +1,6 @@
+robotService.js: vai concentrar todo "como eu busco isso no banco" — se um dia trocar de 
+Supabase pra outro banco, ou adicionar cache, só mexe num lugar. 
+
+controller: cuida só de "o que devolver pro cliente". 
+
+route: só mapeia URL → função.

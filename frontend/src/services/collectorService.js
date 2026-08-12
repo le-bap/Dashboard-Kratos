@@ -8,13 +8,11 @@ const collectorData = {
     isRunning: false
 }
 
-
 export function getCollectorStatus(){
     return {
         ...collectorData
     }
 }
-
 
 export function updateCollector(){
     const updatedCollector = {
