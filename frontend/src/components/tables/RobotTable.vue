@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue"
+import { formatCellValue } from "../../utils/formatters"
 
 const props = defineProps({
   title: String,
@@ -34,21 +35,24 @@ const displayedRows = computed(() => {
   if (props.maxRows === null) {
     return props.rows
   }
-
   return props.rows.slice(0, props.maxRows)
 })
 
 const showViewAll = computed(() => {
-  if (!props.showFooter) {
-    return false
-  }
-
-  if (props.totalRows === null) {
-    return false
-  }
-
+  if (!props.showFooter) return false
+  if (props.totalRows === null) return false
   return props.totalRows > props.rows.length
 })
+
+function cellClass(row, column) {
+  const value = row[column.key]
+
+  if (typeof value === "boolean") {
+    return value ? "cell-positive" : "cell-negative"
+  }
+
+  return ""
+}
 </script>
 
 <template>
@@ -59,43 +63,26 @@ const showViewAll = computed(() => {
     </div>
 
     <table>
-
       <thead>
         <tr>
-          <th
-            v-for="column in columns"
-            :key="column.key"
-          >
+          <th v-for="column in columns" :key="column.key">
             {{ column.label }}
           </th>
         </tr>
       </thead>
 
       <tbody>
-
-        <tr
-          v-for="(row,index) in displayedRows"
-          :key="index"
-        >
-          <td
-            v-for="column in columns"
-            :key="column.key"
-          >
-            {{ row[column.key] }}
+        <tr v-for="(row, index) in displayedRows" :key="index">
+          <td v-for="column in columns" :key="column.key" :class="cellClass(row, column)">
+            {{ formatCellValue(row, column) }}
           </td>
         </tr>
-
       </tbody>
-
     </table>
 
-    <div
-      v-if="showViewAll"
-      class="footer"
-      @click="$emit('view-all', tableId)"
-    >
+    <div v-if="showViewAll" class="footer" @click="$emit('view-all', tableId)">
       {{ buttonText }} ({{ totalRows }})
-</div>
+    </div>
 
   </div>
 </template>
@@ -148,6 +135,16 @@ td {
     font-size: 16px;
     color: #263238;
     border-bottom: 1px solid #f0f0f0;
+}
+
+.cell-positive {
+  color: #1a9c4b;
+  font-weight: 600;
+}
+
+.cell-negative {
+  color: #d92d2d;
+  font-weight: 600;
 }
 
 tbody tr:hover {

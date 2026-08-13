@@ -1,76 +1,58 @@
 <script setup>
-
 defineProps({
-    status:String,
-    lastUpdate:String,
-    lastAttempt:String
+  jobs: {
+    type: Array,
+    default: () => []
+  }
 })
 
-const emit = defineEmits([
-    "refresh"
-])
-function refresh(){
-    emit("refresh")
+const emit = defineEmits(["refresh"])
+function refresh() {
+  emit("refresh")
+}
+
+const statusIcons = {
+  SUCCESS: "✅",
+  ERROR: "❌",
+  RUNNING: "🔄"
 }
 </script>
 
 <template>
-
-<div class="card">
-
-    <div class="icon">
-        {{ status}}
-    </div>
-
-    <div class="content">
-        <p>Última tentativa</p>
-        <h3>{{ lastAttempt }}</h3>
-    </div>
-
-    <div class="content">
-        <p>Última atualização</p>
-        <h3>{{ lastUpdate}}</h3>
+  <div class="card">
+    <div v-for="job in jobs" :key="job.jobName" class="job">
+      <div class="icon">{{ statusIcons[job.status] || "❔" }}</div>
+      <div class="content">
+        <p>{{ job.jobName }}</p>
+        <h3>Última tentativa: {{ job.lastAttempt || "—" }}</h3>
+        <h3>Última atualização: {{ job.lastSuccess || "—" }}</h3>
+      </div>
     </div>
 
     <button @click="refresh">
-        <span class="spin-icon">
-            🔄
-        </span>
-        Atualizar
+      <span class="spin-icon">🔄</span>
+      Atualizar
     </button>
-
-</div>
-
+  </div>
 </template>
 
 <style scoped>
-
-.card{
-    padding:15px;
-    max-width: 900px;
-    display:flex;
-    align-items:center;
-    gap:20px;
-    background-color: #215DD1;
-    margin-bottom: 15px;
+.card {
+  padding: 15px;
+  max-width: 900px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  background-color: #215DD1;
+  margin-bottom: 15px;
 }
-
-.icon{
-    font-size:18px;
-    color: white;
+.job {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-
-.content h3{
-    margin:0;
-    font-size: 14px;
-    color:white;
-}
-
-.content p{
-    margin:4px 0 0;
-    font-size:18px;
-    font-weight:bold;
-    color: white;
-}
-
+.icon { font-size: 18px; color: white; }
+.content h3 { margin: 0; font-size: 14px; color: white; }
+.content p { margin: 4px 0 0; font-size: 16px; font-weight: bold; color: white; }
 </style>

@@ -1,6 +1,6 @@
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
-
+import { formatCellValue } from "../utils/formatters"
 import logo from "../assets/logo-kratos-white.png"
 
 
@@ -151,7 +151,7 @@ function createTable(
         body:
             table.rows.map(row=>
                 table.columns.map(
-                    col=>row[col.key]
+                    col=>formatCellValue(row, col)
                 )
             ),
 

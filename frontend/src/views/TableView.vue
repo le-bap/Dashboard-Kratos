@@ -1,30 +1,43 @@
 <script setup>
 import { useRoute } from "vue-router"
-
+import { ref, onMounted } from "vue"
 import RobotTable from "../components/tables/RobotTable.vue"
-import { getTable } from "../services/robotService"
+import { getFullTable } from "../services/robotService"
 
 const route = useRoute()
+const table = ref(null)
+const loading = ref(true)
+const errorMessage = ref(null)
 
-const table = getTable(route.params.type)
+onMounted(async () => {
+  try {
+    table.value = await getFullTable(route.params.type, {
+      store: route.query.store,
+      robot: route.query.robot,
+    })
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = "Não foi possível carregar a tabela."
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
-
-<div class="page">
-
+  <div class="page">
+    <p v-if="errorMessage">{{ errorMessage }}</p>
+    <div v-else-if="loading">Carregando...</div>
     <RobotTable
-        :title="table.title"
-        :columns="table.columns"
-        :rows="table.rows"
-        :showFooter="false"
-        fontColor="red"
+      v-else-if="table"
+      :title="table.title"
+      :columns="table.columns"
+      :rows="table.rows"
+      :showFooter="false"
+      fontColor="red"
     />
-
-</div>
-
+  </div>
 </template>
-
 
 <style scoped>
 .page {
@@ -33,5 +46,4 @@ const table = getTable(route.params.type)
   flex-direction: column;
   padding-bottom: 200px;
 }
-
 </style>

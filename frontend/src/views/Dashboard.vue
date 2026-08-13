@@ -6,154 +6,162 @@ import FilterBar from "../components/filters/FilterBar.vue";
 import RobotTable from "../components/tables/RobotTable.vue";
 import AboutIndicators from "../components/layout/AboutIndicators.vue";
 import GeneralQuantity from "../components/cards/GeneralQuantity.vue";
-import { getDashboardData, getReportData } from "../services/robotService"
-import { exportDashboardReport } from "../services/reportService"
-import { getCollectorStatus, updateCollector } from "../services/collectorService"
+import { getDashboardData, getFullTable } from "../services/robotService"
+import { getCollectorStatus } from "../services/collectorService"
 import { useRouter } from "vue-router"
-import { ref, computed } from "vue"
+import { ref, onMounted, watch } from "vue"
+import { exportDashboardReport } from "../services/reportService"
 
 const filters = ref({
   store: null,
   robot: null
 })
 
-const collector = ref(
-    getCollectorStatus()
-)
-
-const dashboard = computed(() =>
-  getDashboardData(filters.value)
-)
+const dashboard = ref(null)
+const collectorJobs = ref([])
+const loading = ref(true)
+const errorMessage = ref(null)
 
 const router = useRouter()
 
-function refreshCollector(){
-    collector.value = updateCollector()
+async function loadDashboard() {
+  try {
+    dashboard.value = await getDashboardData(filters.value)
+    errorMessage.value = null
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = "Não foi possível carregar os dados do painel. Tente novamente em instantes."
+  }
+}
+
+async function loadCollectorStatus() {
+  try {
+    collectorJobs.value = await getCollectorStatus()
+  } catch (error) {
+    console.error(error)
+    // erro no status do collector não deve travar o resto do dashboard
+  }
+}
+
+onMounted(async () => {
+  loading.value = true
+  await Promise.all([loadDashboard(), loadCollectorStatus()])
+  loading.value = false
+})
+
+watch(filters, () => {
+  loadDashboard()
+}, { deep: true })
+
+function refreshCollector() {
+  loadCollectorStatus()
 }
 
 function updateFilters(newFilters) {
-  console.log(newFilters)
   filters.value = newFilters
 }
 
-function abrirListaCompleta(tableId){
-  router.push(`/table/${tableId}`)
+function abrirListaCompleta(tableId) {
+  router.push({ path: `/table/${tableId}`, query: filters.value })
 }
 
-function exportReport() {
-  const report = getReportData(filters.value)
-  exportDashboardReport(
-    report,
-    filters.value
-  )
+async function exportReport() {
+  const [battery, inactive, failed, offline] = await Promise.all([
+    getFullTable("battery", filters.value),
+    getFullTable("inactive", filters.value),
+    getFullTable("failed", filters.value),
+    getFullTable("offline", filters.value),
+  ])
+
+  exportDashboardReport({ tables: { battery, inactive, failed, offline } }, filters.value)
 }
 </script>
 
 <template>
-
   <Header/>
   <main>
-    <CollectorStatus
-      :status="collector.status"
-      :lastAttempt="collector.lastAttempt"
-      :lastUpdate="collector.lastUpdate"
-      @refresh="refreshCollector"
-    />
-    <div class="cards">
-      <GeneralQuantity 
-        title="Total de robôs"
-        :value="dashboard.summary.totalRobots"
-      />
+    <p v-if="errorMessage" class="error-banner">{{ errorMessage }}</p>
 
-      <GeneralQuantity 
-        title="Total de lojas criadas"
-        :value="dashboard.summary.totalStores"
+    <div v-if="loading">Carregando...</div>
+
+    <template v-else-if="dashboard">
+      <CollectorStatus
+        :jobs="collectorJobs"
+        @refresh="refreshCollector"
       />
-    </div>
-    <br>
-    <div class="cards">
-        <SummaryCard
-            title="Pouca bateria"
-            :value="dashboard.summary.lowBattery"
-            icon="🔋"
+      <div class="cards">
+        <GeneralQuantity
+          title="Total de robôs"
+          :value="dashboard.summary.totalRobots"
         />
-        <SummaryCard
-            title="Robôs inativos"
-            :value="dashboard.summary.inactive"
-            icon="😴"
+        <GeneralQuantity
+          title="Total de lojas criadas"
+          :value="dashboard.summary.totalStores"
         />
-        <SummaryCard
-            title="Alta taxa de falha"
-            :value="dashboard.summary.failed"
-            icon="❌"
+      </div>
+      <br>
+      <div class="cards">
+        <SummaryCard title="Pouca bateria" :value="dashboard.summary.lowBattery" icon="🔋" />
+        <SummaryCard title="Robôs inativos" :value="dashboard.summary.inactive" icon="😴" />
+        <SummaryCard title="Alta taxa de falha" :value="dashboard.summary.failed" icon="❌" />
+        <SummaryCard title="Offline" :value="dashboard.summary.offline" icon="🌐" />
+      </div>
+      <div class="filter-and-report">
+        <FilterBar
+          :robotList="dashboard.filterBar.robotList"
+          :storeList="dashboard.filterBar.storeList"
+          @filter-change="updateFilters"
         />
-
-        <SummaryCard
-            title="Offline"
-            :value="dashboard.summary.offline"
-            icon="🌐"
+        <button @click="exportReport">Exportar<br>pesquisa</button>
+      </div>
+      <div class="tables">
+        <RobotTable
+          title="Robôs com bateria abaixo de 10%"
+          :columns="dashboard.tables.battery.columns"
+          :rows="dashboard.tables.battery.rows"
+          :totalRows="dashboard.tables.battery.totalRows"
+          tableId="battery" fontColor="red" :maxRows="5"
+          @view-all="abrirListaCompleta"
         />
-    </div>
-    <div class="filter-and-report">
-      <FilterBar
-        :robotList="dashboard.filterBar.robotList"
-        :storeList="dashboard.filterBar.storeList"
-        @filter-change="updateFilters"
-      />
-      <button @click="exportReport">Exportar<br>pesquisa</button>
-    </div>
-    <div class="tables">
-      <RobotTable
-        title="Robôs com bateria abaixo de 10%"
-        :columns="dashboard.tables.battery.columns"
-        :rows="dashboard.tables.battery.rows"
-        :totalRows="dashboard.tables.battery.totalRows"
-        tableId="battery"
-        fontColor="red"
-        :maxRows="5"
-        @view-all="abrirListaCompleta"
-      />
-
-      <RobotTable
-        title="Robôs que não realizam tarefas a mais de 3 dias"
-        :columns="dashboard.tables.inactive.columns"
-        :rows="dashboard.tables.inactive.rows"
-        :totalRows="dashboard.tables.inactive.totalRows"
-        tableId="inactive"
-        fontColor="green"
-        :maxRows="5"
-        @view-all="abrirListaCompleta"
-      />
-
-      <RobotTable
-        title="Robôs com alta taxa de falha na entrega"
-        :columns="dashboard.tables.failed.columns"
-        :rows="dashboard.tables.failed.rows"
-        :totalRows="dashboard.tables.failed.totalRows"
-        tableId="failed"
-        fontColor="orange"
-        :maxRows="5"
-        @view-all="abrirListaCompleta"
-      />
-
-      <RobotTable
-        title="Robôs offline"
-        :columns="dashboard.tables.offline.columns"
-        :rows="dashboard.tables.offline.rows"
-        :totalRows="dashboard.tables.offline.totalRows"
-        tableId="offline"
-        fontColor="#FF00FF"
-        :maxRows="5"
-        @view-all="abrirListaCompleta"
-      />
-    </div>
-
-    <AboutIndicators />
+        <RobotTable
+          title="Robôs que não realizam tarefas a mais de 3 dias"
+          :columns="dashboard.tables.inactive.columns"
+          :rows="dashboard.tables.inactive.rows"
+          :totalRows="dashboard.tables.inactive.totalRows"
+          tableId="inactive" fontColor="green" :maxRows="5"
+          @view-all="abrirListaCompleta"
+        />
+        <RobotTable
+          title="Robôs com alta taxa de falha na entrega"
+          :columns="dashboard.tables.failed.columns"
+          :rows="dashboard.tables.failed.rows"
+          :totalRows="dashboard.tables.failed.totalRows"
+          tableId="failed" fontColor="orange" :maxRows="5"
+          @view-all="abrirListaCompleta"
+        />
+        <RobotTable
+          title="Robôs offline"
+          :columns="dashboard.tables.offline.columns"
+          :rows="dashboard.tables.offline.rows"
+          :totalRows="dashboard.tables.offline.totalRows"
+          tableId="offline" fontColor="#FF00FF" :maxRows="5"
+          @view-all="abrirListaCompleta"
+        />
+      </div>
+      <AboutIndicators />
+    </template>
   </main>
-
 </template>
 
 <style scoped>
+.error-banner {
+  background: #ffdddd;
+  color: #a30000;
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin: 10px;
+}
+
 main {
   background-color: #215DD1;
   display: flex;
