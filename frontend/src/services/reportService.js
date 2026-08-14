@@ -65,7 +65,7 @@ export function exportDashboardReport(dashboard, filters) {
     y += 15
     y = createTable(
         doc,
-        "Robôs que não realizam tarefas a mais de 3 dias",
+        "Robôs que não realizam tarefas a mais de 72 horas",
         dashboard.tables.inactive,
         y,
         "#00A000"

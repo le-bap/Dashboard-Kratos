@@ -124,7 +124,7 @@ async function exportReport() {
           @view-all="abrirListaCompleta"
         />
         <RobotTable
-          title="Robôs que não realizam tarefas a mais de 3 dias"
+          title="Robôs (online) que não realizam tarefas a mais de 72 horas"
           :columns="dashboard.tables.inactive.columns"
           :rows="dashboard.tables.inactive.rows"
           :totalRows="dashboard.tables.inactive.totalRows"
@@ -132,7 +132,7 @@ async function exportReport() {
           @view-all="abrirListaCompleta"
         />
         <RobotTable
-          title="Robôs com alta taxa de falha na entrega"
+          title="Robôs (online) com alta taxa de falha na entrega"
           :columns="dashboard.tables.failed.columns"
           :rows="dashboard.tables.failed.rows"
           :totalRows="dashboard.tables.failed.totalRows"

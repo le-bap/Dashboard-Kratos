@@ -1,0 +1,18 @@
+[Keenon] --(login)--> [keenonAuth.js]    
+             |
+             v
+        [keenonClient.js] -- injeta o token automaticamente em toda chamada 
+             |
+             v
+        [keenonService.js] -- "perguntas prontas": getStores(), getRobotsByStore(), 
+                               getScenesByStore(), getRobotStatus(), getAllDeliveryTasks()
+             |
+             v
+        (AINDA NÃO EXISTE) -- alguém precisa CHAMAR essas perguntas na ordem certa,
+                               e outra parte precisa GRAVAR as respostas no Supabase        
+             |
+             v
+        [Supabase]                              
+             |
+             v
+        [Backend + Frontend]                    ✅ já prontos, já leem do Supabase

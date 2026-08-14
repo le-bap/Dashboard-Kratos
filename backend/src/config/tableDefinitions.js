@@ -28,7 +28,7 @@ const TABLE_DEFINITIONS = {
     mapRow: mapBatteryRow,
   },
   inactive: {
-    title: 'Robôs que não realizam tarefas há mais de 3 dias',
+    title: 'Robôs (online) que não realizam tarefas há mais de 72 horas',
     columns: [
       { label: 'Robô', key: 'robot' },
       { label: 'Loja', key: 'store' },
@@ -37,7 +37,7 @@ const TABLE_DEFINITIONS = {
     mapRow: mapSimpleRow,
   },
   failed: {
-    title: 'Robôs com alta taxa de falha',
+    title: 'Robôs (online) com alta taxa de falha na entrega',
     columns: [
       { label: 'Robô', key: 'robot' },
       { label: 'Loja', key: 'store' },
