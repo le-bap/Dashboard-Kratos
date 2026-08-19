@@ -57,7 +57,7 @@ export function exportDashboardReport(dashboard, filters) {
     let y = 70
     y = createTable(
         doc,
-        "Robôs com bateria abaixo de 10%",
+        "Robôs com bateria abaixo ou igual a 10%",
         dashboard.tables.battery,
         y,
         "#FF0000"

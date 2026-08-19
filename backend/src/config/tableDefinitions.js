@@ -17,7 +17,7 @@ function mapFailureRow(r) {
 
 const TABLE_DEFINITIONS = {
   battery: {
-    title: 'Robôs com bateria abaixo de 10%',
+    title: 'Robôs com bateria abaixo ou igual a 10%',
     columns: [
       { label: 'Robô', key: 'robot' },
       { label: 'Loja', key: 'store' },

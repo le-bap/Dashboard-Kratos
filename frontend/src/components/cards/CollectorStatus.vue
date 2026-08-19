@@ -1,15 +1,19 @@
 <script setup>
-defineProps({
-  jobs: {
-    type: Array,
-    default: () => []
-  }
+import { computed } from "vue"
+import { formatDateTime } from "../../utils/formatters"
+
+const props = defineProps({
+  jobs: { type: Array, default: () => [] }
 })
 
 const emit = defineEmits(["refresh"])
 function refresh() {
   emit("refresh")
 }
+
+const isRunning = computed(() =>
+  props.jobs.some((job) => job.status === "RUNNING")
+)
 
 const statusIcons = {
   SUCCESS: "✅",
@@ -24,14 +28,14 @@ const statusIcons = {
       <div class="icon">{{ statusIcons[job.status] || "❔" }}</div>
       <div class="content">
         <p>{{ job.jobName }}</p>
-        <h3>Última tentativa: {{ job.lastAttempt || "—" }}</h3>
-        <h3>Última atualização: {{ job.lastSuccess || "—" }}</h3>
+        <h3>Última tentativa: {{ formatDateTime(job.lastAttempt) }}</h3>
+        <h3>Última atualização: {{ formatDateTime(job.lastSuccess) }}</h3>
       </div>
     </div>
 
-    <button @click="refresh">
+    <button @click="refresh" :disabled="isRunning">
       <span class="spin-icon">🔄</span>
-      Atualizar
+      {{ isRunning ? "Coletando..." : "Atualizar" }}
     </button>
   </div>
 </template>

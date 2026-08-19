@@ -7,9 +7,9 @@ import RobotTable from "../components/tables/RobotTable.vue";
 import AboutIndicators from "../components/layout/AboutIndicators.vue";
 import GeneralQuantity from "../components/cards/GeneralQuantity.vue";
 import { getDashboardData, getFullTable } from "../services/robotService"
-import { getCollectorStatus } from "../services/collectorService"
+import { getCollectorStatus, triggerCollectorRefresh } from "../services/collectorService"
 import { useRouter } from "vue-router"
-import { ref, onMounted, watch } from "vue"
+import { ref, onMounted, onUnmounted, watch } from "vue"
 import { exportDashboardReport } from "../services/reportService"
 
 const filters = ref({
@@ -21,6 +21,7 @@ const dashboard = ref(null)
 const collectorJobs = ref([])
 const loading = ref(true)
 const errorMessage = ref(null)
+const refreshError = ref(null)
 
 const router = useRouter()
 
@@ -43,6 +44,38 @@ async function loadCollectorStatus() {
   }
 }
 
+let pollingInterval = null
+
+async function refreshCollector() {
+  refreshError.value = null
+  try {
+    await triggerCollectorRefresh()
+    await loadCollectorStatus() // já deve mostrar "RUNNING" na hora
+    startPolling()
+  } catch (error) {
+    refreshError.value = error.response?.data?.error || "Não foi possível iniciar a atualização agora."
+  }
+}
+
+function startPolling() {
+  if (pollingInterval) return // já está checando, não duplica
+
+  pollingInterval = setInterval(async () => {
+    await loadCollectorStatus()
+    const aindaRodando = collectorJobs.value.some((job) => job.status === "RUNNING")
+
+    if (!aindaRodando) {
+      clearInterval(pollingInterval)
+      pollingInterval = null
+      await loadDashboard() // só recarrega os dados quando a coleta realmente terminou
+    }
+  }, 5000) // confere a cada 5 segundos
+}
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval)
+})
+
 onMounted(async () => {
   loading.value = true
   await Promise.all([loadDashboard(), loadCollectorStatus()])
@@ -52,10 +85,6 @@ onMounted(async () => {
 watch(filters, () => {
   loadDashboard()
 }, { deep: true })
-
-function refreshCollector() {
-  loadCollectorStatus()
-}
 
 function updateFilters(newFilters) {
   filters.value = newFilters
@@ -85,10 +114,11 @@ async function exportReport() {
     <div v-if="loading">Carregando...</div>
 
     <template v-else-if="dashboard">
-      <CollectorStatus
-        :jobs="collectorJobs"
-        @refresh="refreshCollector"
-      />
+      <CollectorStatus 
+        :jobs="collectorJobs" 
+        :refreshing="refreshing" 
+        @refresh="refreshCollector" />
+        <p v-if="refreshError" class="error-banner">{{ refreshError }}</p>
       <div class="cards">
         <GeneralQuantity
           title="Total de robôs"
@@ -116,7 +146,7 @@ async function exportReport() {
       </div>
       <div class="tables">
         <RobotTable
-          title="Robôs com bateria abaixo de 10%"
+          title="Robôs com bateria abaixo ou igual a 10%"
           :columns="dashboard.tables.battery.columns"
           :rows="dashboard.tables.battery.rows"
           :totalRows="dashboard.tables.battery.totalRows"
