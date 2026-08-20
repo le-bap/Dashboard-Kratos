@@ -17,7 +17,11 @@ Dashboard
 
     ├── RobotTable
 
-    └── RobotTable
+    ├── RobotTable
+
+    ├── RobotTable
+
+    └── ManutPreventivas
 
 | Componente      | Responsabilidade                            |
 | --------------- | ------------------------------------------- |

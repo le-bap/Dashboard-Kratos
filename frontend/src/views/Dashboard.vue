@@ -195,7 +195,7 @@ async function loadMaintenance() {
           :columns="maintenance.columns"
           :rows="maintenance.rows"
           tableId="maintenance"
-          fontColor="#FFA500"
+          fontColor="#663399"
           :showFooter="false"
         />
       </section>
