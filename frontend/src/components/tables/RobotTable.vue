@@ -51,6 +51,10 @@ function cellClass(row, column) {
     return value ? "cell-positive" : "cell-negative"
   }
 
+  if (column.key === "status") {
+    return value === "vencido" ? "cell-negative" : "cell-warning"
+  }
+
   return ""
 }
 </script>
@@ -144,6 +148,11 @@ td {
 
 .cell-negative {
   color: #d92d2d;
+  font-weight: 600;
+}
+
+.cell-warning {
+  color: #b8860b;
   font-weight: 600;
 }
 

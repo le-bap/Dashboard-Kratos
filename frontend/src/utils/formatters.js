@@ -1,21 +1,3 @@
-export function formatCellValue(row, column) {
-  const value = row[column.key]
-
-  if (value === null || value === undefined) {
-    return "—"
-  }
-
-  if (typeof value === "boolean") {
-    return value ? "Sim" : "Não"
-  }
-
-  if (column.key === "battery") {
-    return `${value}%`
-  }
-
-  return value
-}
-
 export function formatDateTime(isoString) {
   if (!isoString) return "—"
 
@@ -30,4 +12,25 @@ export function formatDateTime(isoString) {
     hour: "2-digit",
     minute: "2-digit",
   })
+}
+
+export function formatCellValue(row, column) {
+  const value = row[column.key]
+
+  if (value === null || value === undefined) return "—"
+  if (typeof value === "boolean") return value ? "Sim" : "Não"
+  if (column.key === "battery") return `${value}%`
+
+  if (column.key === "status") {
+    return value === "vencido" ? "Vencido" : "Vence em breve"
+  }
+
+  if (column.key === "dueDate") {
+    const date = new Date(value)
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+    }
+  }
+
+  return value
 }

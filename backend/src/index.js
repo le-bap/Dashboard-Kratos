@@ -4,6 +4,7 @@ require('dotenv').config()
 
 const dashboardRoutes = require('./routes/dashboardRoutes')
 const collectorRoutes = require('./routes/collectorRoutes')
+const maintenanceRoutes = require('./routes/maintenanceRoutes')
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -17,6 +18,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api', dashboardRoutes)
 app.use('/api', collectorRoutes)
+app.use('/api', maintenanceRoutes)
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`)

@@ -11,6 +11,7 @@ import { getCollectorStatus, triggerCollectorRefresh } from "../services/collect
 import { useRouter } from "vue-router"
 import { ref, onMounted, onUnmounted, watch } from "vue"
 import { exportDashboardReport } from "../services/reportService"
+import { getMaintenanceAlerts } from "../services/maitenanceService"
 
 const filters = ref({
   store: null,
@@ -22,6 +23,7 @@ const collectorJobs = ref([])
 const loading = ref(true)
 const errorMessage = ref(null)
 const refreshError = ref(null)
+const maintenance = ref(null)
 
 const router = useRouter()
 
@@ -78,7 +80,7 @@ onUnmounted(() => {
 
 onMounted(async () => {
   loading.value = true
-  await Promise.all([loadDashboard(), loadCollectorStatus()])
+  await Promise.all([loadDashboard(), loadCollectorStatus(), loadMaintenance()])
   loading.value = false
 })
 
@@ -103,6 +105,14 @@ async function exportReport() {
   ])
 
   exportDashboardReport({ tables: { battery, inactive, failed, offline } }, filters.value)
+}
+
+async function loadMaintenance() {
+  try {
+    maintenance.value = await getMaintenanceAlerts()
+  } catch (error) {
+    console.error(error)
+  }
 }
 </script>
 
@@ -178,6 +188,18 @@ async function exportReport() {
           @view-all="abrirListaCompleta"
         />
       </div>
+
+      <section v-if="maintenance" class="maintenance-section">
+        <RobotTable
+          :title="maintenance.title"
+          :columns="maintenance.columns"
+          :rows="maintenance.rows"
+          tableId="maintenance"
+          fontColor="#FFA500"
+          :showFooter="false"
+        />
+      </section>
+
       <AboutIndicators />
     </template>
   </main>
